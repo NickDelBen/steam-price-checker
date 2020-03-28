@@ -38,7 +38,8 @@ class SteamManager:
                 self.apps[str(appid)].update({"price": price_data})
         self.update = datetime.now()
 
-    def getFreeApps (self): return self.findFreeApps(self.apps)
+    def getFreeApps (self, min_discount=None, min_initial=None): 
+        return self.findFreeApps(self.apps, min_discount=min_discount, min_initial=min_initial)
 
     @staticmethod
     def getAppList ():
@@ -65,7 +66,8 @@ class SteamManager:
         return results
 
     @staticmethod
-    def findFreeApps (app_list):
+    def findFreeApps (app_list, min_discount=None, min_initial=0):
+        print(min_discount)
         results = {}
         for appid, app_data in app_list.items():
             if not "price" in app_data: continue
@@ -73,7 +75,8 @@ class SteamManager:
             if not "initial" in app_data["price"]: continue
             if not "discount_percent" in app_data["price"]: continue
             if app_data["price"]["initial"] <= 0: continue
-            if app_data["price"]["discount_percent"] < 100: continue
+            if app_data["price"]["discount_percent"] < (min_discount if min_discount is not None else 100): continue
+            if app_data["price"]["initial"] < (min_initial if min_initial is not None else 0): continue
             results[appid] = app_data
         return results
 
@@ -90,10 +93,20 @@ def print_price_table (apps):
 if __name__ == "__main__":
     import sys
     import os
-    data_file = sys.argv[1] if len(sys.argv) > 1 else "./steamappdata.dat"
+    import argparse
+    parser = argparse.ArgumentParser(prog='checker', usage='%(ptog)s [options]')
+    parser.add_argument('--db', help='path to steam app price database file')
+    parser.add_argument('--min_discount', help='minimum discount to shoe (default is free (100%))')
+    parser.add_argument('--min_initial', help='minimum regular price before discount')
+    args, leftovers = parser.parse_known_args()
+    data_file = args.db if args.db else "./steamappdata.dat"
     if os.path.isfile(data_file):
         with open(data_file, "rb") as fin: manager = SteamManager(readFile=fin)
     else: manager = SteamManager()
     if manager.needsUpdate(): manager.updatePrices()
     with open(data_file, "wb") as fout: manager.saveToFile(fout)
-    print_price_table(manager.getFreeApps())
+    print(argparse)
+    print_price_table(manager.getFreeApps(
+        min_discount=int(args.min_discount) if args.min_discount else None,
+        min_initial=int(args.min_initial) if args.min_initial else None
+    ))

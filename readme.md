@@ -16,5 +16,9 @@ Usage
 **Simple Usage**
  * Default mode will store the steamapp data in the same directory as the script
  * `$ python3 checker.py`
- * You can specify a path to your own database file as the first argument if you wish
- * `$ python3 checker.py ~/downloads/prices.db`
+ * You can specify a path to your own database using the db flag
+ * `$ python3 checker.py --db ~/downloads/prices.db`
+ * You can specify a minimum discount using the min_discount flag
+ * `$ python3 checker.py --min_discount 80`
+ * You can specify a minimum base (non discounted) price using the min_initial flag 
+ * `$ python3 checker.py --min_initial 1000`
