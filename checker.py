@@ -67,7 +67,6 @@ class SteamManager:
 
     @staticmethod
     def findFreeApps (app_list, min_discount=None, min_initial=0):
-        print(min_discount)
         results = {}
         for appid, app_data in app_list.items():
             if not "price" in app_data: continue
@@ -105,7 +104,6 @@ if __name__ == "__main__":
     else: manager = SteamManager()
     if manager.needsUpdate(): manager.updatePrices()
     with open(data_file, "wb") as fout: manager.saveToFile(fout)
-    print(argparse)
     print_price_table(manager.getFreeApps(
         min_discount=int(args.min_discount) if args.min_discount else None,
         min_initial=int(args.min_initial) if args.min_initial else None
