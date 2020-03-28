@@ -42,8 +42,7 @@ class SteamManager:
 
     @staticmethod
     def getAppList ():
-        data = requests.get("http://api.steampowered.com/ISteamApps/GetAppList/v2").json()
-        return data["applist"]["apps"]
+        return requests.get("http://api.steampowered.com/ISteamApps/GetAppList/v2").json()["applist"]["apps"]
 
     @staticmethod
     def parsePriceOverview (overview):
@@ -60,10 +59,8 @@ class SteamManager:
         results = {}
         for appid, app_data in data.items():
             results[appid] = None
-            if app_data["success"] == False:
-                continue
-            if not "price_overview" in app_data["data"]:
-                continue
+            if app_data["success"] == False: continue
+            if not "price_overview" in app_data["data"]: continue
             results[appid] = SteamManager.parsePriceOverview(app_data["data"]["price_overview"])
         return results
 
