@@ -38,8 +38,8 @@ class SteamManager:
                 self.apps[str(appid)].update({"price": price_data})
         self.update = datetime.now()
 
-    def getFreeApps (self, min_discount=None, min_initial=None): 
-        return self.findFreeApps(self.apps, min_discount=min_discount, min_initial=min_initial)
+    def getFreeApps (self, min_discount=None, min_initial=None, max_current=None): 
+        return self.findFreeApps(self.apps, min_discount=min_discount, min_initial=min_initial, max_current=max_current)
 
     @staticmethod
     def getAppList ():
@@ -66,7 +66,7 @@ class SteamManager:
         return results
 
     @staticmethod
-    def findFreeApps (app_list, min_discount=None, min_initial=0):
+    def findFreeApps (app_list, min_discount=None, min_initial=0, max_current=None):
         results = {}
         for appid, app_data in app_list.items():
             if not "price" in app_data: continue
@@ -76,6 +76,7 @@ class SteamManager:
             if app_data["price"]["initial"] <= 0: continue
             if app_data["price"]["discount_percent"] < (min_discount if min_discount is not None else 100): continue
             if app_data["price"]["initial"] < (min_initial if min_initial is not None else 0): continue
+            if app_data["price"]["final"] > (max_current if max_current is not None else 9999999999999): continue
             results[appid] = app_data
         return results
 
@@ -93,10 +94,11 @@ if __name__ == "__main__":
     import sys
     import os
     import argparse
-    parser = argparse.ArgumentParser(prog='checker', usage='%(ptog)s [options]')
+    parser = argparse.ArgumentParser(prog='checker', usage='%(prog)s [options]')
     parser.add_argument('--db', help='path to steam app price database file')
     parser.add_argument('--min_discount', help='minimum discount to shoe (default is free (100%))')
     parser.add_argument('--min_initial', help='minimum regular price before discount')
+    parser.add_argument('--max_current', help='maximum discounted price')
     args, leftovers = parser.parse_known_args()
     data_file = args.db if args.db else "./steamappdata.dat"
     if os.path.isfile(data_file):
@@ -106,5 +108,6 @@ if __name__ == "__main__":
     with open(data_file, "wb") as fout: manager.saveToFile(fout)
     print_price_table(manager.getFreeApps(
         min_discount=int(args.min_discount) if args.min_discount else None,
-        min_initial=int(args.min_initial) if args.min_initial else None
+        min_initial=int(args.min_initial) if args.min_initial else None,
+        max_current=int(args.max_current) if args.max_current else None
     ))
