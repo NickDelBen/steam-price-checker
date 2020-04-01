@@ -22,3 +22,5 @@ Usage
  * `$ python3 checker.py --min_discount 80`
  * You can specify a minimum base (non discounted) price using the min_initial flag 
  * `$ python3 checker.py --min_initial 1000`
+ * You can specify a maximum discounted price using the max_current flag
+ * `$ python3 checker.py --max_current 225`
